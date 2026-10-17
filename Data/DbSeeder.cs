@@ -9,12 +9,21 @@ namespace StudentManagement.Data;
 /// <summary>Seed dữ liệu mẫu khi chạy ở môi trường Development (chỉ chạy khi CSDL còn trống).</summary>
 public static class DbSeeder
 {
+    /// <summary>Mật khẩu mặc định của tài khoản admin seed (chỉ dùng ở Development).</summary>
+    public const string MatKhauAdminMacDinh = "Admin@123";
+
     public static async Task SeedAsync(AppDbContext db)
     {
+        // CSDL tạo từ bản seed cũ còn mật khẩu giữ chỗ "CHANGE_ME" -> đổi sang hash BCrypt để đăng nhập được
+        var taiKhoanChuaCoMatKhau = await db.Set<TaiKhoan>().Where(x => x.MatKhauHash == "CHANGE_ME").ToListAsync();
+        foreach (var tk in taiKhoanChuaCoMatKhau)
+            tk.MatKhauHash = BCrypt.Net.BCrypt.HashPassword(MatKhauAdminMacDinh);
+        if (taiKhoanChuaCoMatKhau.Count > 0)
+            await db.SaveChangesAsync();
+
         if (await db.Set<Khoa>().AnyAsync()) return;
 
-        // TODO AUTH-01: thay bằng hash thật (BCrypt/PasswordHasher) khi làm đăng nhập.
-        db.Add(new TaiKhoan { TenDangNhap = "admin", MatKhauHash = "CHANGE_ME", HoTen = "Quản trị viên", VaiTro = VaiTro.Admin });
+        db.Add(new TaiKhoan { TenDangNhap = "admin", MatKhauHash = BCrypt.Net.BCrypt.HashPassword(MatKhauAdminMacDinh), HoTen = "Quản trị viên", VaiTro = VaiTro.Admin });
 
         var cntt = new Khoa { Ma = "CNTT", Ten = "Khoa Công nghệ thông tin" };
         var kt = new Khoa { Ma = "KT", Ten = "Khoa Kinh tế" };

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using StudentManagement.Common;
 using StudentManagement.Data;
 using StudentManagement.Modules.Academic;
@@ -110,7 +111,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // 5. Swagger
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Nút "Authorize" trên Swagger: dán access token nhận từ POST /api/auth/login
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Dán access token (không cần gõ chữ 'Bearer')."
+    });
+    c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+    });
+});
 
 // 6. Đăng ký các Modules
 builder.Services
@@ -134,6 +149,7 @@ if (app.Environment.IsDevelopment())
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.MigrateAsync();
         await DbSeeder.SeedAsync(db);
+        await StudentAffairsSeeder.SeedAsync(db);
     }
 
     app.UseSwagger();

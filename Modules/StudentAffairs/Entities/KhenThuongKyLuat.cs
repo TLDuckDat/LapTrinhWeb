@@ -10,4 +10,10 @@ public class KhenThuongKyLuat : BaseEntity
     public string? SoQuyetDinh { get; set; }
     public DateOnly NgayQuyetDinh { get; set; }
     public string NoiDung { get; set; } = string.Empty;
+
+    /// <summary>Học kỳ áp dụng quyết định. Để null được vì dữ liệu cũ chưa có cột này.</summary>
+    public int? HocKyId { get; set; } // -> Academic.HocKy (khác module: chỉ giữ Id)
+
+    /// <summary>Hình thức kỷ luật (chỉ dùng khi Loai = KyLuat).</summary>
+    public HinhThucKyLuat? HinhThuc { get; set; }
 }

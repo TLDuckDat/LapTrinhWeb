@@ -14,6 +14,8 @@ public class HocBongConfiguration : IEntityTypeConfiguration<HocBong>
         builder.ToTable("HocBong");
         builder.Property(x => x.Ten).HasMaxLength(200).IsRequired();
         builder.Property(x => x.SoTien).HasPrecision(18, 2);
+        builder.Property(x => x.MucHocBong).HasMaxLength(30);
+        builder.Property(x => x.DiemTrungBinh).HasPrecision(4, 2);
         builder.HasOne<SinhVien>().WithMany().HasForeignKey(x => x.SinhVienId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<HocKy>().WithMany().HasForeignKey(x => x.HocKyId).OnDelete(DeleteBehavior.Restrict);
     }
